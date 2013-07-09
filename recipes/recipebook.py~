@@ -9,7 +9,7 @@ from google.appengine.api import users
 
 
 class Recipe(db.Model):
-    """Models a Recipe entry with an author, content, avatar, and date."""
+    """Models a Recipe with an author, content, avatar, and date."""
     author = db.UserProperty()
     content = db.StringProperty(multiline=True)
     avatar = db.BlobProperty()
@@ -39,7 +39,7 @@ class MainPage(webapp2.RequestHandler):
             else:
                 self.response.out.write('An anonymous person submitted:')
             self.response.out.write('<div><img src="img?img_id=%s"></img>' %
-                                    greeting.key())
+                                    recipe.key())
             self.response.out.write('<blockquote>%s</blockquote></div>' %
                                     cgi.escape(recipe.content))
 
@@ -82,5 +82,5 @@ class Recipebook(webapp2.RequestHandler):
 
 application = webapp2.WSGIApplication([('/', MainPage),
                                ('/img', Image),
-                               ('/sign', Guestbook)],
+                               ('/sign', Recipebook)],
                               debug=True)

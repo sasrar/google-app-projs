@@ -1,4 +1,4 @@
-application: sasrar-guestbook
+application: sasrar-recipes
 version: 1
 runtime: python27
 api_version: 1
@@ -6,7 +6,7 @@ threadsafe: yes
 
 handlers:
 - url: /.*
-  script: guestbook.application
+  script: recipebook.application
   
 libraries:
 - name: webapp2
