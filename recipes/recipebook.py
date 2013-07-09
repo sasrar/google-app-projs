@@ -2,11 +2,16 @@ import cgi
 import datetime
 import urllib
 import webapp2
+import jinja2
+import os
 
 from google.appengine.ext import db
 from google.appengine.api import images
 from google.appengine.api import users
 
+JINJA_ENVIRONMENT = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    extensions=['jinja2.ext.autoescape'])
 
 class Recipe(db.Model):
     """Models a Recipe with an author, content, avatar, and date."""
@@ -23,7 +28,7 @@ def recipe_key(recipe_name=None):
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
-        self.response.out.write('<html><body>')
+        # self.response.out.write('<html><body>')
         recipe_name=self.request.get('recipe_name')
 
         recipes = db.GqlQuery('SELECT * '
@@ -31,27 +36,15 @@ class MainPage(webapp2.RequestHandler):
                                 'WHERE ANCESTOR IS :1 '
                                 'ORDER BY date DESC LIMIT 10',
                                 recipe_key(recipe_name))
-
-        for recipe in recipes:
-            if recipe.author:
-                self.response.out.write(
-                    '<b>%s</b> submitted:' % recipe.author)
-            else:
-                self.response.out.write('An anonymous person submitted:')
-            self.response.out.write('<div><img src="img?img_id=%s"></img>' %
-                                    recipe.key())
-            self.response.out.write('<blockquote>%s</blockquote></div>' %
-                                    cgi.escape(recipe.content))
-
-        self.response.out.write("""
-              <form action="/sign?%s" enctype="multipart/form-data" method="post">
-                <div><textarea name="content" rows="3" cols="60"></textarea></div>
-                <div><label>Avatar:</label></div>
-                <div><input type="file" name="img"/></div>
-                <div><input type="submit" value="Submit Recipe"></div>
-              </form>
-            </body>
-          </html>""")
+        
+        template_values = {
+            'recipes': recipes,
+            #'url': url,
+            #'url_linktext': url_linktext,
+        }
+        
+        template = JINJA_ENVIRONMENT.get_template('index.html')
+        self.response.write(template.render(template_values))
 
 
 class Image(webapp2.RequestHandler):
@@ -82,5 +75,5 @@ class Recipebook(webapp2.RequestHandler):
 
 application = webapp2.WSGIApplication([('/', MainPage),
                                ('/img', Image),
-                               ('/sign', Recipebook)],
+                               ('/submit', Recipebook)],
                               debug=True)

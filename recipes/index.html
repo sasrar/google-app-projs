@@ -6,29 +6,27 @@
   </head>
   <body>
   <ul>
-
-    {% for character in characters %}
-  	<li>
-    	<img src="{{ character.thumbnail }}"/>
-    	<h3> {{ character.name }}</h3>
+    {% for recipe in recipes %}
+    <li>
+      {% if recipe.author %}
+        <b>{{ recipe.author.nickname() }}</b> submitted:
+      {% else %}
+       An anonymous person submitted:
+      {% endif %}
+      <div id="listEntryCont"><img src="img?img_id={{ recipe.key() }}"></img>
+        <blockquote>{{ recipe.content }}</blockquote>
+      </div>
     </li>
     {% endfor %}
-
+    
   </ul>
 
-    <form action="/sign?guestbook_name={{ guestbook_name }}" method="post">
+    <form action="/submit?%s" enctype="multipart/form-data" method="post">
       <div><textarea name="content" rows="3" cols="60"></textarea></div>
-      <div><input type="submit" value="Sign Guestbook"></div>
+      <div><label>Photo:</label></div>
+      <div><input type="file" name="img"/></div>
+      <div><input type="submit" value="Submit Recipe"></div>
     </form>
-
-    <hr>
-
-    <form>Guestbook name:
-      <input value="{{ guestbook_name }}" name="guestbook_name">
-      <input type="submit" value="switch">
-    </form>
-
-    <a href="{{ url|safe }}">{{ url_linktext }}</a>
 
   </body>
 </html>
