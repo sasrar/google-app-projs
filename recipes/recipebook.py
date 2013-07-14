@@ -44,7 +44,7 @@ class Image(webapp2.RequestHandler):
         recipe = db.get(self.request.get('img_id'))
         if recipe.avatar:
             self.response.headers['Content-Type'] = 'image/png'
-            self.response.out.write(images.resize(recipe.avatar,100,100))
+            self.response.out.write(recipe.avatar)
         #else:
         #    self.response.out.write('No image')
 
@@ -59,7 +59,7 @@ class Recipebook(webapp2.RequestHandler):
 
         recipe.title = self.request.get('title')
         recipe.description = self.request.get('description')
-        avatar = self.request.get('img')
+        avatar = images.resize(self.request.get('img'),100,100)
         recipe.avatar = db.Blob(avatar)
         recipe.put()
         self.redirect('/?' + urllib.urlencode(
