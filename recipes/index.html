@@ -6,15 +6,18 @@
     <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
   </head>
   <body>
-    <p id="signInfo"><b>Singed in as: </b>{{ person }}
-      <br>
+    <div id="signInfo">
+      {% if person %}
+        <b>Signed in as: </b>{{ person }}
+        <br>
+      {% endif %}
       <a href="{{ url|safe }}">{{ url_linktext }}</a>
-    </p>
+    </div>
     <hr>
     <ul>
       {% for recipe in recipes %}
       <li>
-        <a href="recipeinfo?recipe_id={{ recipe.key() }}">
+        <a href="recipeInfo?recipe_id={{ recipe.key() }}">
           {% if recipe.author %}
             <b>{{ recipe.author.nickname() }}</b> submitted:
           {% else %}

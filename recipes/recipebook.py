@@ -1,25 +1,8 @@
-import cgi
-import datetime
-import urllib
-import webapp2
-import jinja2
-import os
-
-from google.appengine.ext import db
-from google.appengine.api import images
-from google.appengine.api import users
+from models import *
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'])
-
-class Recipe(db.Model):
-    """Models a Recipe with an author, title, avatar, and date."""
-    author = db.UserProperty()
-    title = db.StringProperty()
-    avatar = db.BlobProperty()
-    description = db.StringProperty(multiline=True)
-    date = db.DateTimeProperty(auto_now_add=True)
 
 
 def recipe_key(recipe_name=None):
@@ -56,26 +39,12 @@ class MainPage(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render(template_values))
 
-# This class operates when user clicks on a recipe on the list
-# This class shows a new page with recipe details
-class RecipeInfo(webapp2.RequestHandler):
-  def get(self):
-    recipe = db.get(self.request.get('recipe_id'))
-    
-    template_values = {
-      'recipe': recipe
-    }
-    
-    template = JINJA_ENVIRONMENT.get_template('recipe.html')
-    self.response.write(template.render(template_values))
-
-
 class Image(webapp2.RequestHandler):
     def get(self):
         recipe = db.get(self.request.get('img_id'))
         if recipe.avatar:
             self.response.headers['Content-Type'] = 'image/png'
-            self.response.out.write(recipe.avatar)
+            self.response.out.write(images.resize(recipe.avatar,100,100))
         #else:
         #    self.response.out.write('No image')
 
@@ -90,7 +59,7 @@ class Recipebook(webapp2.RequestHandler):
 
         recipe.title = self.request.get('title')
         recipe.description = self.request.get('description')
-        avatar = images.resize(self.request.get('img'), 100, 100)
+        avatar = self.request.get('img')
         recipe.avatar = db.Blob(avatar)
         recipe.put()
         self.redirect('/?' + urllib.urlencode(
@@ -99,6 +68,5 @@ class Recipebook(webapp2.RequestHandler):
 
 application = webapp2.WSGIApplication([('/', MainPage),
                                ('/img', Image),
-                               ('/recipeinfo', RecipeInfo),
                                ('/submit', Recipebook)],
                               debug=True)

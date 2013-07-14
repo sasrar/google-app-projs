@@ -8,6 +8,9 @@ handlers:
 - url: /stylesheets
   static_dir: stylesheets
 
+- url: /recipeInfo
+  script: recipeInfo.application
+
 - url: /.*
   script: recipebook.application
   

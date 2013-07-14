@@ -11,7 +11,10 @@ datastore recipes.
 - style page further
   -> streamline recipe photo and name horizontally------DONE
 - enable logging into site-------DONE
-- enable submitting recipes without pics
 - make list entries links to a new page that shows info about selected 
     recipe-----DONE
+- beautify "recipe info" page
+  -> enable seeing full sized picture in "recipe info" page
+- add graphical heading to main page
 - add rating system to recipes
+- enable submitting recipes without pics
