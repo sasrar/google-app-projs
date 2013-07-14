@@ -2,33 +2,49 @@
 {% autoescape true %}
 <html>
   <head>
+    <title>Our Recipes</title>
     <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
   </head>
   <body>
+    <p id="signInfo"><b>Singed in as: </b>{{ person }}
+      <br>
+      <a href="{{ url|safe }}">{{ url_linktext }}</a>
+    </p>
+    <hr>
     <ul>
       {% for recipe in recipes %}
       <li>
-        {% if recipe.author %}
-          <b>{{ recipe.author.nickname() }}</b> submitted:
-        {% else %}
-         An anonymous person submitted:
-        {% endif %}
-        <div><img src="img?img_id={{ recipe.key() }}"></img>
-          <span id="recipe-title">
-            {{ recipe.content }}
-          </span>
-        </div>
+        <a href="recipeinfo?recipe_id={{ recipe.key() }}">
+          {% if recipe.author %}
+            <b>{{ recipe.author.nickname() }}</b> submitted:
+          {% else %}
+            An anonymous person submitted:
+          {% endif %}
+          <div>
+            {% if recipe.avatar %}        
+              <img src="img?img_id={{ recipe.key() }}"></img>
+            {% else %}
+              <img src="images/default.jpg"></img>
+            {% endif %}
+            <span id="recipe-title">
+              {{ recipe.title }}
+            </span>
+          </div>
+        </a>
       </li>
       {% endfor %}
       
     </ul>
 
     <form action="/submit?%s" enctype="multipart/form-data" method="post">
-      <div><textarea name="content" rows="3" cols="60"></textarea></div>
+      <div>Title: <input type="text" name="title"></div>
+      <div><label>Description:</label></div>
+      <div><textarea name="description" rows="5" cols="60"></textarea></div>
       <div><label>Photo:</label></div>
       <div><input type="file" name="img"/></div>
       <div><input type="submit" value="Submit Recipe"></div>
     </form>
+    
   </body>
 </html>
 {% endautoescape %}

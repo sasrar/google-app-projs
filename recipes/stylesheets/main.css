@@ -18,6 +18,12 @@ li {
   border: 5px double white;
 }
 
+a:link {text-decoration:none;}
+
+#signInfo {
+  text-align: right;
+}
+
 #recipe-title {
   padding-left:20px;
   font-style: italic;

@@ -14,10 +14,11 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     extensions=['jinja2.ext.autoescape'])
 
 class Recipe(db.Model):
-    """Models a Recipe with an author, content, avatar, and date."""
+    """Models a Recipe with an author, title, avatar, and date."""
     author = db.UserProperty()
-    content = db.StringProperty(multiline=True)
+    title = db.StringProperty()
     avatar = db.BlobProperty()
+    description = db.StringProperty(multiline=True)
     date = db.DateTimeProperty(auto_now_add=True)
 
 
@@ -28,7 +29,6 @@ def recipe_key(recipe_name=None):
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
-        # self.response.out.write('<html><body>')
         recipe_name=self.request.get('recipe_name')
 
         recipes = db.GqlQuery('SELECT * '
@@ -36,15 +36,38 @@ class MainPage(webapp2.RequestHandler):
                                 'WHERE ANCESTOR IS :1 '
                                 'ORDER BY date DESC LIMIT 10',
                                 recipe_key(recipe_name))
+                                
+        person = users.get_current_user()
+        
+        if person:
+          url = users.create_logout_url(self.request.uri)
+          url_linktext = 'Logout'
+        else:
+          url = users.create_login_url(self.request.uri)
+          url_linktext = 'Login'
         
         template_values = {
             'recipes': recipes,
-            #'url': url,
-            #'url_linktext': url_linktext,
+            'url': url,
+            'url_linktext': url_linktext,
+            'person': person
         }
         
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render(template_values))
+
+# This class operates when user clicks on a recipe on the list
+# This class shows a new page with recipe details
+class RecipeInfo(webapp2.RequestHandler):
+  def get(self):
+    recipe = db.get(self.request.get('recipe_id'))
+    
+    template_values = {
+      'recipe': recipe
+    }
+    
+    template = JINJA_ENVIRONMENT.get_template('recipe.html')
+    self.response.write(template.render(template_values))
 
 
 class Image(webapp2.RequestHandler):
@@ -53,8 +76,8 @@ class Image(webapp2.RequestHandler):
         if recipe.avatar:
             self.response.headers['Content-Type'] = 'image/png'
             self.response.out.write(recipe.avatar)
-        else:
-            self.response.out.write('No image')
+        #else:
+        #    self.response.out.write('No image')
 
 
 class Recipebook(webapp2.RequestHandler):
@@ -65,7 +88,8 @@ class Recipebook(webapp2.RequestHandler):
         if users.get_current_user():
             recipe.author = users.get_current_user()
 
-        recipe.content = self.request.get('content')
+        recipe.title = self.request.get('title')
+        recipe.description = self.request.get('description')
         avatar = images.resize(self.request.get('img'), 100, 100)
         recipe.avatar = db.Blob(avatar)
         recipe.put()
@@ -75,5 +99,6 @@ class Recipebook(webapp2.RequestHandler):
 
 application = webapp2.WSGIApplication([('/', MainPage),
                                ('/img', Image),
+                               ('/recipeinfo', RecipeInfo),
                                ('/submit', Recipebook)],
                               debug=True)

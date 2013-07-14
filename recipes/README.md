@@ -9,6 +9,9 @@ datastore recipes.
 *Needs more work:
 - unit test each feature
 - style page further
-  -> streamline recipe photo and name horizontally
-- make list entries links to a new page that shows info about selected recipe
+  -> streamline recipe photo and name horizontally------DONE
+- enable logging into site-------DONE
+- enable submitting recipes without pics
+- make list entries links to a new page that shows info about selected 
+    recipe-----DONE
 - add rating system to recipes
